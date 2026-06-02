@@ -49,3 +49,52 @@ echo "Sua configuração terminou. Copie a chave abaixo e adicione no GitHub:"
 echo ""
 cat "${CHAVE}.pub"
 echo ""
+
+# ==========================================
+# NOVAS MELHORIAS DE AUTOMAÇÃO DE CLONE/PULL
+# ==========================================
+
+echo "⚠️ IMPORTANTE: Vá até o GitHub -> Settings -> SSH and GPG keys e cole a chave acima."
+# O script pausa aqui até você apertar ENTER
+read -p "Pressione [ENTER] APÓS ter adicionado a chave no GitHub para continuarmos..."
+
+echo ""
+echo "Testando a conexão com o GitHub..."
+# ssh -T testa a conexão e o grep filtra a mensagem de sucesso para não poluir muito a tela
+ssh -T git@github.com 2>&1 | grep -q "You've successfully authenticated"
+if [ $? -eq 0 ]; then
+    echo "✅ Conexão com GitHub estabelecida com sucesso!"
+else
+    echo "⚠️ Aviso: O teste de conexão não retornou a mensagem de sucesso esperada. O clone pode falhar."
+fi
+
+echo ""
+echo "Deseja clonar um repositório novo ou atualizar um existente agora? (s/n)"
+read RESP
+
+if [ "$RESP" = "s" ] || [ "$RESP" = "S" ]; then
+    echo "Cole o link SSH do repositório (ex: git@github.com:usuario/projeto.git):"
+    read LINK_REPO
+
+    if [ -n "$LINK_REPO" ]; then
+        # O comando basename extrai apenas o nome do projeto (ex: de 'git@github.com:user/projeto.git' ele pega 'projeto')
+        NOME_PASTA=$(basename -s .git "$LINK_REPO")
+
+        # Verifica se um diretório com o nome do projeto já existe
+        if [ -d "$NOME_PASTA" ]; then
+            echo "O diretório '$NOME_PASTA' já existe. Atualizando com 'git pull'..."
+            cd "$NOME_PASTA" || exit
+            git pull
+            cd ..
+            echo "✅ Projeto atualizado com sucesso!"
+        else
+            echo "O diretório '$NOME_PASTA' não foi encontrado localmente. Iniciando o clone..."
+            git clone "$LINK_REPO"
+            echo "✅ Projeto clonado com sucesso!"
+        fi
+    else
+        echo "Nenhum link foi inserido. Saindo."
+    fi
+else
+    echo "Tudo pronto! Setup finalizado."
+fi
