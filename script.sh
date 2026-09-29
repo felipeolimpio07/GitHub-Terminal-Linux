@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Configuração de Git e SSH"
-echo "-------------------------"
+echo "--------------------------"
 
 echo "Digite seu nome para o Git:"
 read NOME
