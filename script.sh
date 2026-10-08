@@ -1,3 +1,4 @@
+echo "seja bem vindo"
 #!/bin/bash
 
 echo "Configuração de Git e SSH"
